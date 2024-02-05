@@ -1,5 +1,5 @@
-import { ProducaoPedidoOutDTO } from '../dto'
+import { ProducaoPedidoDTO } from '../dto'
 
 export interface IListaProducaoPedido {
-  listaPedidoProducao(codigoPedido: number): Promise<ProducaoPedidoOutDTO>
+  listaPedidoProducao(codigoPedido: number): Promise<ProducaoPedidoDTO>
 }

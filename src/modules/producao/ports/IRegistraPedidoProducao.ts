@@ -1,5 +1,5 @@
-import { ProducaoPedidoOutDTO } from '../dto'
+import { ProducaoPedidoDTO } from '../dto'
 
 export interface IRegistraProducaoPedido {
-  registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoOutDTO>
+  registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoDTO>
 }
