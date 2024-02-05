@@ -10,12 +10,7 @@ datasource db {
   url      = env("DB_HOST")
 }
 
-enum Situacao {
-  PREPARACAO
-  PRONTO
-}
-
 model ProducaoPedido {
     codigo_pedido Int @id
-    situacao Situacao
+    situacao String
 }
