@@ -1,4 +1,5 @@
 import { CustomError, CustomErrorType } from '../../utils'
+import { ProducaoPedidoOutDTO } from './dto'
 import { ProducaoPedido, Situacao } from './model/ProducaoPedido'
 import { IProducaoPedidoRepository } from './ports/IProducaoPedidoRespository'
 import { IProducaoPedidoUseCases } from './ports/IProducaoUseCases'
@@ -8,18 +9,25 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
     private readonly repository: IProducaoPedidoRepository
   ) {}
 
-  async registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedido> {
+  private serializeDTO (producaoPedido: ProducaoPedido): ProducaoPedidoOutDTO {
+    return {
+      codigoPedido: producaoPedido.codigoPedido,
+      status: producaoPedido.situacao
+    }
+  }
+
+  async registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoOutDTO> {
     try {
       const producaoPedido = new ProducaoPedido(codigoPedido, Situacao.PREPARACAO)
       await this.repository.registraProducaoPedido(producaoPedido)
-      return producaoPedido
+      return this.serializeDTO(producaoPedido)
     } catch (error) {
       console.error(error)
       throw new CustomError(CustomErrorType.RepositoryUnknownError, 'Erro ao registrar uma produção de pedido!')
     }
   }
 
-  async atualizaProducaoPedido (codigoPedido: number, status: Situacao): Promise<ProducaoPedido> {
+  async atualizaProducaoPedido (codigoPedido: number, status: Situacao): Promise<ProducaoPedidoOutDTO> {
     try {
       const producaoPedido = await this.repository.obtemProducaoPedido(codigoPedido)
 
@@ -33,14 +41,14 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
       producaoPedido.atualizaStatus(status)
 
       await this.repository.atualizaProducaoPedido(producaoPedido)
-      return producaoPedido
+      return this.serializeDTO(producaoPedido)
     } catch (error) {
       console.error(error)
       throw new CustomError(CustomErrorType.RepositoryUnknownError, 'Erro ao atualizar produçõa de pedido!')
     }
   }
 
-  async listaPedidoProducao (codigoPedido: number): Promise<ProducaoPedido> {
+  async listaPedidoProducao (codigoPedido: number): Promise<ProducaoPedidoOutDTO> {
     try {
       const producaoPedido = await this.repository.obtemProducaoPedido(codigoPedido)
 
@@ -51,7 +59,7 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
         )
       }
 
-      return producaoPedido
+      return this.serializeDTO(producaoPedido)
     } catch (error) {
       console.error(error)
       throw new CustomError(CustomErrorType.RepositoryDataNotFound, 'Produção de pedido não encotrada!')
