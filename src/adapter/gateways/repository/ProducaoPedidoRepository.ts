@@ -1,7 +1,6 @@
-import { PrismaClient, ProducaoPedido as ProducaoPedidoDb } from '@prisma/client'
-import { IProducaoPedidoRepository } from '../../modules/producao'
-import { ProducaoPedido, Situacao } from '../../modules/producao/model/ProducaoPedido'
-import prisma from '../../prisma/client'
+import { PrismaClient, ProducaoPedido } from '@prisma/client'
+import { IProducaoPedidoRepository, ProducaoPedidoDTO } from '../../../modules/producao'
+import prisma from '../../../prisma/client'
 
 export class ProducaoPedidoRepository implements IProducaoPedidoRepository {
   prisma: PrismaClient
@@ -10,11 +9,14 @@ export class ProducaoPedidoRepository implements IProducaoPedidoRepository {
     this.prisma = prisma
   }
 
-  private serializeProducaoPedido (pp: ProducaoPedidoDb): ProducaoPedido {
-    return new ProducaoPedido(pp.codigo_pedido, Object.keys(Situacao).indexOf(pp.situacao))
+  private serializeProducaoPedido (pp: ProducaoPedido): ProducaoPedidoDTO {
+    return {
+      codigoPedido: pp.codigo_pedido,
+      situacao: pp.situacao
+    }
   }
 
-  async obtemProducaoPedido (codigoPedido: number): Promise<ProducaoPedido | null> {
+  async obtemProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoDTO | null> {
     const producaoPedido = await this.prisma.producaoPedido.findUnique({
       where: { codigo_pedido: codigoPedido }
     })
@@ -24,7 +26,7 @@ export class ProducaoPedidoRepository implements IProducaoPedidoRepository {
     return this.serializeProducaoPedido(producaoPedido)
   }
 
-  async registraProducaoPedido (producaoPedido: ProducaoPedido): Promise<ProducaoPedido> {
+  async registraProducaoPedido (producaoPedido: ProducaoPedidoDTO): Promise<ProducaoPedidoDTO> {
     const created = await this.prisma.producaoPedido.create({
       data: {
         codigo_pedido: producaoPedido.codigoPedido,
@@ -35,7 +37,7 @@ export class ProducaoPedidoRepository implements IProducaoPedidoRepository {
     return this.serializeProducaoPedido(created)
   }
 
-  async atualizaProducaoPedido (producaoPedido: ProducaoPedido): Promise<ProducaoPedido> {
+  async atualizaProducaoPedido (producaoPedido: ProducaoPedidoDTO): Promise<ProducaoPedidoDTO> {
     const updated = await this.prisma.producaoPedido.update({
       where: {
         codigo_pedido: producaoPedido.codigoPedido

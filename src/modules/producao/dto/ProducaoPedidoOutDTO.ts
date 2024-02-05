@@ -1,4 +1,4 @@
-export type ProducaoPedidoOutDTO = {
+export type ProducaoPedidoDTO = {
   codigoPedido: number
-  status: string
+  situacao: string
 }

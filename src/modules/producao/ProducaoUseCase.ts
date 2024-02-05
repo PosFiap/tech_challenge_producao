@@ -1,5 +1,5 @@
 import { CustomError, CustomErrorType } from '../../utils'
-import { ProducaoPedidoOutDTO } from './dto'
+import { ProducaoPedidoDTO } from './dto'
 import { ProducaoPedido, Situacao } from './model/ProducaoPedido'
 import { IProducaoPedidoRepository } from './ports/IProducaoPedidoRespository'
 import { IProducaoPedidoUseCases } from './ports/IProducaoUseCases'
@@ -9,17 +9,21 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
     private readonly repository: IProducaoPedidoRepository
   ) {}
 
-  private serializeDTO (producaoPedido: ProducaoPedido): ProducaoPedidoOutDTO {
+  private serializeDTO (producaoPedido: ProducaoPedido): ProducaoPedidoDTO {
     return {
       codigoPedido: producaoPedido.codigoPedido,
-      status: producaoPedido.situacao
+      situacao: producaoPedido.situacao
     }
   }
 
-  async registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoOutDTO> {
+  private serializeEntity (producaoPedido: ProducaoPedidoDTO): ProducaoPedido {
+    return new ProducaoPedido(producaoPedido.codigoPedido, Object.keys(Situacao).indexOf(producaoPedido.situacao))
+  }
+
+  async registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoDTO> {
     try {
       const producaoPedido = new ProducaoPedido(codigoPedido, Situacao.PREPARACAO)
-      await this.repository.registraProducaoPedido(producaoPedido)
+      await this.repository.registraProducaoPedido(this.serializeDTO(producaoPedido))
       return this.serializeDTO(producaoPedido)
     } catch (error) {
       console.error(error)
@@ -27,39 +31,42 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
     }
   }
 
-  async atualizaProducaoPedido (codigoPedido: number, status: Situacao): Promise<ProducaoPedidoOutDTO> {
+  async atualizaProducaoPedido (codigoPedido: number, status: Situacao): Promise<ProducaoPedidoDTO> {
     try {
-      const producaoPedido = await this.repository.obtemProducaoPedido(codigoPedido)
+      const producaoPedidoDTO = await this.repository.obtemProducaoPedido(codigoPedido)
 
-      if (!producaoPedido) {
+      if (!producaoPedidoDTO) {
         throw new CustomError(
           CustomErrorType.RepositoryDataNotFound,
           'Produção de pedido não encontrada!'
         )
       }
 
+      const producaoPedido = this.serializeEntity(producaoPedidoDTO)
       producaoPedido.atualizaStatus(status)
 
-      await this.repository.atualizaProducaoPedido(producaoPedido)
-      return this.serializeDTO(producaoPedido)
+      const resultDTO = this.serializeDTO(producaoPedido)
+      await this.repository.atualizaProducaoPedido(resultDTO)
+
+      return resultDTO
     } catch (error) {
       console.error(error)
       throw new CustomError(CustomErrorType.RepositoryUnknownError, 'Erro ao atualizar produçõa de pedido!')
     }
   }
 
-  async listaPedidoProducao (codigoPedido: number): Promise<ProducaoPedidoOutDTO> {
+  async listaPedidoProducao (codigoPedido: number): Promise<ProducaoPedidoDTO> {
     try {
-      const producaoPedido = await this.repository.obtemProducaoPedido(codigoPedido)
+      const producaoPedidoDTO = await this.repository.obtemProducaoPedido(codigoPedido)
 
-      if (!producaoPedido) {
+      if (!producaoPedidoDTO) {
         throw new CustomError(
           CustomErrorType.RepositoryDataNotFound,
           'Produção de pedido não encontrada!'
         )
       }
 
-      return this.serializeDTO(producaoPedido)
+      return producaoPedidoDTO
     } catch (error) {
       console.error(error)
       throw new CustomError(CustomErrorType.RepositoryDataNotFound, 'Produção de pedido não encotrada!')
