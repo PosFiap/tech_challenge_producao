@@ -1,4 +1,3 @@
-import { ProducaoPedidoPayload } from '@prisma/client'
 import { CustomError, CustomErrorType } from '../../../utils'
 
 export enum Situacao {
@@ -26,9 +25,5 @@ export class ProducaoPedido {
     }
 
     this._situacao = novoStatus
-  }
-
-  static serializeProducaoPedido (producaoPedido: ProducaoPedidoPayload): ProducaoPedido {
-    return new ProducaoPedido(producaoPedido.scalars.codigo_pedido, Situacao[producaoPedido.scalars.situacao])
   }
 }
