@@ -65,7 +65,7 @@ export class ProducaoPedidoHttp implements IHttpRoute {
     const codigoPedido = parseInt(req.params.codigoPedido)
     const situacao = Object.keys(Situacao).indexOf(req.body.situacao)
 
-    if (isNaN(codigoPedido) || situacao < 10) {
+    if (isNaN(codigoPedido) || situacao < 0) {
       customErrorToResponse(new CustomError(
         CustomErrorType.BusinessRuleViolation,
         'verifique o codigo do pedido e o status de atualização'
