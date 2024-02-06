@@ -24,6 +24,8 @@ export class ProducaoPedidoHttp implements IHttpRoute {
         'codigo de pedido inválido'
       ), res)
 
+      console.log('Erro is nan')
+
       return
     }
 
@@ -34,12 +36,19 @@ export class ProducaoPedidoHttp implements IHttpRoute {
 
       res.status(200).json(producaoPedido)
     } catch (error) {
+      if (error instanceof CustomError) {
+        customErrorToResponse(error, res)
+        return
+      }
 
+      res.status(500).json({
+        mensagem: 'Falha ao obter produção do pedido'
+      })
     }
   }
 
   private async iniciarProducaoPedido (req: Request, res: Response) {
-    const codigoPedido = parseInt(req.params.codigoPedido)
+    const codigoPedido = parseInt(req.body.codigoPedido)
 
     if (isNaN(codigoPedido)) {
       customErrorToResponse(new CustomError(
@@ -57,18 +66,25 @@ export class ProducaoPedidoHttp implements IHttpRoute {
 
       res.status(201).json(producaoPedido)
     } catch (error) {
+      if (error instanceof CustomError) {
+        customErrorToResponse(error, res)
+        return
+      }
 
+      res.status(500).json({
+        mensagem: 'Falha ao registrar a produção do pedido'
+      })
     }
   }
 
   private async atualizarProducaoPedido (req: Request, res: Response) {
     const codigoPedido = parseInt(req.params.codigoPedido)
-    const situacao = Object.keys(Situacao).indexOf(req.body.situacao)
+    const situacao = parseInt(Situacao[req.body.situacao])
 
-    if (isNaN(codigoPedido) || situacao < 0) {
+    if (isNaN(codigoPedido) || !situacao) {
       customErrorToResponse(new CustomError(
         CustomErrorType.BusinessRuleViolation,
-        'verifique o codigo do pedido e o status de atualização'
+        'verifique o codigo do pedido e a situação de atualização'
       ), res)
 
       return
@@ -81,17 +97,24 @@ export class ProducaoPedidoHttp implements IHttpRoute {
 
       res.status(200).json(producaoPedido)
     } catch (error) {
+      if (error instanceof CustomError) {
+        customErrorToResponse(error, res)
+        return
+      }
 
+      res.status(500).json({
+        mensagem: 'Falha ao atualizar produção do pedido'
+      })
     }
   }
 
   private setRoutes () {
-    this.router.post('/', this.iniciarProducaoPedido)
-    this.router.get('/:codigoPedido', this.getProducaoPedido)
-    this.router.post('/:codigoPedido', this.atualizarProducaoPedido)
+    this.router.post('/', this.iniciarProducaoPedido.bind(this))
+    this.router.get('/:codigoPedido', this.getProducaoPedido.bind(this))
+    this.router.put('/:codigoPedido', this.atualizarProducaoPedido.bind(this))
   }
 
   getRouter (): Router {
-    throw new Error('Method not implemented.')
+    return this.router
   }
 }

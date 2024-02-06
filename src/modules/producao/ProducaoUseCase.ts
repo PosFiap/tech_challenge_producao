@@ -17,7 +17,7 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
   }
 
   private serializeEntity (producaoPedido: ProducaoPedidoDTO): ProducaoPedido {
-    return new ProducaoPedido(producaoPedido.codigoPedido, Object.keys(Situacao).indexOf(producaoPedido.situacao))
+    return new ProducaoPedido(producaoPedido.codigoPedido, parseInt(Situacao[producaoPedido.situacao as any]))
   }
 
   async registraProducaoPedido (codigoPedido: number): Promise<ProducaoPedidoDTO> {
@@ -51,7 +51,7 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
       return resultDTO
     } catch (error) {
       console.error(error)
-      throw new CustomError(CustomErrorType.RepositoryUnknownError, 'Erro ao atualizar produçõa de pedido!')
+      throw new CustomError(CustomErrorType.RepositoryUnknownError, 'Erro ao atualizar produção de pedido!')
     }
   }
 
