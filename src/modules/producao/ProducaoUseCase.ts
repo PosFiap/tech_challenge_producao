@@ -69,7 +69,7 @@ export class ProducaoPedidoUseCase implements IProducaoPedidoUseCases {
       return producaoPedidoDTO
     } catch (error) {
       console.error(error)
-      throw new CustomError(CustomErrorType.RepositoryDataNotFound, 'Produção de pedido não encotrada!')
+      throw new CustomError(CustomErrorType.RepositoryDataNotFound, 'Produção de pedido não encontrada!')
     }
   }
 }
